@@ -1,0 +1,68 @@
+version: '3.9'
+
+services:
+  ui:
+    image: robeeerto/todo-list-ui:latest
+    container_name: ui
+    restart: on-failure
+    networks:
+      - frontend
+    ports:
+      - 3001:3001
+    environment:
+      - NEXT_PUBLIC_CABLE_URL=${NEXT_PUBLIC_CABLE_URL}
+      - NEXT_PUBLIC_API=${NEXT_PUBLIC_API}
+    depends_on:
+      - api
+
+  api:
+    image: robeeerto/todo-list-api:latest
+    restart: on-failure
+    container_name: api
+    ports:
+      - 3000:3000
+    depends_on:
+      - database
+      - redis
+    networks:
+      - frontend
+      - backend
+    environment:
+      - DB_HOST=database
+      - DB_USER=${DB_USER}
+      - DB_PORT=${DB_PORT}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - RAILS_ENV=${RAILS_ENV}
+      - REDIS_URL=${REDIS_URL}
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    restart: on-failure
+    networks:
+      - backend
+    volumes:
+      - redis-data:/data
+
+  database:
+    image: postgres:14-alpine
+    container_name: database
+    restart: on-failure
+    networks:
+      - backend
+    environment:
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - database-data:/var/lib/postgresql/data
+      
+volumes:
+  database-data:
+    external: true
+  redis-data:
+    external: true
+
+networks:
+  backend:
+    external: true
+  frontend:
+    external: true

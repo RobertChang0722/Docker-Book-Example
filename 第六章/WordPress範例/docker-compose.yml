@@ -1,0 +1,27 @@
+version: '3.9'
+
+services:
+  wordpress:
+    image: wordpress:6.0.2
+    ports:
+      - 8080:80
+    environment:
+      - WORDPRESS_DB_HOST=db
+      - WORDPRESS_DB_USER=admin
+      - WORDPRESS_DB_PASSWORD=password
+      - WORDPRESS_DB_NAME=wordpress
+    volumes:
+      - .:/var/www/html
+
+  db:
+    image: mysql:5.7
+    environment:
+      - MYSQL_DATABASE=wordpress
+      - MYSQL_USER=admin
+      - MYSQL_PASSWORD=password
+      - MYSQL_RANDOM_ROOT_PASSWORD=1
+    volumes:
+      - db:/var/lib/mysql
+
+volumes:
+  db:
